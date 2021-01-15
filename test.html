@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      #jj-search-box {
+        border-top: 1px solid #ccc;
+        position: fixed;
+        /* top: 0; */
+        bottom: 0;
+        background-color: #fff;
+        height: 50px;
+        width: 100%;
+      }
+      .jj-search-result {
+        color: red;
+        background-color: yellow;
+      }
+      .jj-search-result.active {
+        background-color: orange;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="jj-search-box">
+      <input type="search" onkeydown="search(event)" />
+      <a onclick="goPrevSesult()">上一个</a>
+      <a onclick="goPrevNextResult()">下一个</a>
+      <soan id="current-result-number"></soan> /
+      <span id="total-result-number"></span>
+    </div>
+
+    <div class="blog-content-box" style="margin-bottom: 70px;">
+      <div class="article-header-box">
+        <div class="article-header">
+          <div class="article-title-box">
+            <h1 class="title-article" id="articleContentId">
+              Chrome报错：Unchecked runtime.lastError的处理
+            </h1>
+          </div>
+          <div class="article-info-box">
+            <div class="blog-tags-box">
+              <div class="tags-box artic-tag-box">
+                <span class="label">分类专栏：</span>
+                <a
+                  class="tag-link"
+                  href="https://blog.csdn.net/smxdgf/category_9899555.html"
+                  target="_blank"
+                  rel="noopener"
+                  >php</a
+                >
+              </div>
+            </div>
+            <div class="up-time">
+              <span>最后发布:2020-05-17 15:33:02</span
+              ><span>首次发布:2020-05-17 15:33:02</span>
+            </div>
+            <div class="slide-content-box">
+              <div class="article-copyright">
+                <div class="creativecommons">
+                  版权声明：本文为博主原创文章，遵循&lt;a
+                  href="http://creativecommons.org/licenses/by-sa/4.0/"
+                  target="_blank" rel="noopener"&gt; CC 4.0 BY-SA
+                  &lt;/a&gt;版权协议，转载请附上原文出处链接和本声明。
+                </div>
+                <div class="article-source-link">
+                  本文链接：<a
+                    href="https://blog.csdn.net/smxdgf/article/details/106163386"
+                    target="_blank"
+                    >https://blog.csdn.net/smxdgf/article/details/106163386</a
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="operating">
+              <a class="href-article-edit slide-toggle">版权</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <article class="baidu_pl">
+        <div id="article_content" class="article_content clearfix">
+          <link
+            rel="stylesheet"
+            href="https://csdnimg.cn/release/blogv2/dist/mdeditor/css/editerView/ck_htmledit_views-b5506197d8.css"
+          />
+          <div id="content_views" class="markdown_views prism-atom-one-light">
+            <svg xmlns="http://www.w3.org/2000/svg" style="display: none">
+              <path
+                stroke-linecap="round"
+                d="M5,0 0,2.5 5,5z"
+                id="raphael-marker-block"
+                style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0)"
+              ></path>
+            </svg>
+            <p>
+              一、报错信息：<code
+                >Unchecked runtime.lastError: Could not establish connection.
+                Receiving end does not exist.</code
+              >以前的时候没有，最近才出现。<br />
+              二、网上搜索结果，发现这种情况遇到的人真的不少。讨论的问题原因是因为chrome插件引起的。解决方法是关闭相关插件就可以。可是，到底是哪一个插件引起的呢？总不能把插件都关了吧？<br />
+              于是我就开始尝试，最后发现是一个免费VPN插件造成的。<img
+                src="https://img-blog.csdnimg.cn/20200517152946864.png"
+                alt="在这里插入图片描述"
+              /><br />
+              就是这个插件。<br />
+              关闭这个插件当然不会再出现，问题是想用这个插件怎么办呢？<br />
+              打开这个插件的设置界面：<br />
+              <img
+                src="https://img-blog.csdnimg.cn/20200517153150866.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3NteGRnZg==,size_16,color_FFFFFF,t_70"
+                alt="在这里插入图片描述"
+              /><br />
+              不选择在所有网站上，改先其他两项其中任一项都不再出现报错。<br />
+              而根据stackoverflow.com上的讨论，这个问题是在chrome72版本后出现的，在chrome72以前的版本上一般不会出现这个问题。
+            </p>
+          </div>
+          <div><div></div></div>
+          <link
+            href="https://csdnimg.cn/release/blogv2/dist/mdeditor/css/editerView/markdown_views-d7a94ec6ab.css"
+            rel="stylesheet"
+          />
+          <link
+            href="https://csdnimg.cn/release/blogv2/dist/mdeditor/css/style-ba784fbaf8.css"
+            rel="stylesheet"
+          />
+        </div>
+      </article>
+    </div>
+
+    <script>
+      var prev_keyword = "";
+      var all_result = [];
+      var totalResultNumber = 0;
+      var currentResultNumber = 0;
+      var current_el;
+      updateNumbers(0, 0);
+      function search(event) {
+        if (event.key === "Enter") {
+          clearResult();
+
+          var searchKeyword = event.target.value;
+          searchKeyword = searchKeyword.replace(/^\s+/, "");
+          searchKeyword = searchKeyword.replace(/\s+$/, "");
+          searchKeyword = searchKeyword.replace(/[<|>]+/, '');
+          searchKeyword = searchKeyword.replace(/\w+/, '');
+        //   console.log('xx',searchKeyword)
+
+          if (!searchKeyword) {
+            return;
+          }
+          var el = document.querySelector(".blog-content-box");
+          var originHtml = el.innerHTML;
+
+          var regexp = new RegExp("" + searchKeyword + "", "gi");
+
+          var newHtml = originHtml.replace(
+            regexp,
+            `<span class="jj-search-result">${searchKeyword}</span>`
+          );
+          el.innerHTML = newHtml;
+          prev_keyword = searchKeyword;
+          all_result = document.querySelectorAll(".jj-search-result");
+          updateNumbers(all_result.length, 1);
+          setCurrent();
+        }
+      }
+
+      // 上一个
+      function goPrevSesult() {
+        current_el.classList.remove("active");
+        updateNumbers(
+          null,
+          currentResultNumber == 1 ? totalResultNumber : --currentResultNumber
+        );
+        setCurrent();
+      }
+
+      // 下一个
+      function goPrevNextResult() {
+        current_el.classList.remove("active");
+        updateNumbers(
+          null,
+          currentResultNumber == totalResultNumber ? 1 : ++currentResultNumber
+        );
+        setCurrent();
+      }
+
+      function setCurrent() {
+        current_el = all_result[currentResultNumber - 1];
+        current_el.classList.add("active");
+        current_el.scrollIntoView();
+      }
+
+      function clearResult(params) {
+        all_result.forEach((el) => {
+          el.replaceWith(prev_keyword);
+          updateNumbers(0, 0);
+        });
+      }
+
+      function updateNumbers(t, c) {
+        if (t !== null) {
+          totalResultNumber = t;
+          document.getElementById("total-result-number").innerText = t;
+        }
+        if (c !== null) {
+          currentResultNumber = c;
+          document.getElementById("current-result-number").innerText = c;
+        }
+      }
+    </script>
+  </body>
+</html>
